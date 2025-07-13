@@ -1,17 +1,16 @@
 import random
-
 # PARÁMETROS CONFIGURABLES
 
 MAX_BUSES = 80        # Máxima cantidad de buses permitidos
-MAX_LINEAS = 40       # Máxima cantidad de líneas permitidas
+MAX_LINEAS = 40       # Máxima cantidad de lineas permitidas
 MONTO_MIN = 5000      # Monto mínimo de recaudación
 MONTO_MAX = 12000     # Monto máximo de recaudación
-
 
 # Función que muestra el menú principal
 
 def menu_principal():
-    print("\n--- Hola, Ingrese los datos que desea saber ---")
+    print("\n    Control de recaudación mensual de líneas y buses ")
+    print("Seleccione una opción (1-9)")
     print("1. Indica la cantidad de buses y líneas que deseas acceder")
     print("2. Mostrar el bus con mayor recaudación")
     print("3. Mostrar el bus con mayor recaudación por línea")
@@ -50,18 +49,21 @@ def capacidad_maxima():
 # Genera matriz aleatoria de recaudaciones por bus y por línea
 
 def generar_recaudaciones(buses, lineas):
-    matriz = []
-    for _ in range(buses):
-        fila = [random.randint(MONTO_MIN, MONTO_MAX) for _ in range(lineas)]
-        matriz.append(fila)
-    return matriz
+    matriz = []  
+    for i in range(buses):  
+        fila = []  
+        for j in range(lineas): 
+            monto = random.randint(MONTO_MIN, MONTO_MAX)  
+            fila.append(monto) 
+        matriz.append(fila)  
+    return matriz  
+import random
 
-# Muestra el bus o los buses con mayor recaudación total
 
 def monto_recaudado(matriz):
     totales = [sum(bus) for bus in matriz]
     max_total = max(totales)
-    print("\nEl bus o buses con mayor recaudación de la empresa es:")
+    print("\nEl bus o buses con mayor recaudación de la empresa son:")
     for i, total in enumerate(totales):
         if total == max_total:
             print(f"  Bus {i+1} con S/ {total}")
@@ -102,20 +104,20 @@ def menor_recuadacion_por_linea(matriz):
 
 # Ordena los buses por recaudación total usando burbuja descendente
 
+
 def ordenar_buses(matriz):
     n = len(matriz)
-    totales = [(i, sum(matriz[i])) for i in range(n)]
-
-    # Algoritmo de burbuja
+    totales = []
+    for i in range(n):
+        total = sum(matriz[i])  
+        totales.append((i, total))  
     for i in range(n - 1):
         for j in range(n - i - 1):
-            if totales[j][1] < totales[j + 1][1]:
+            if totales[j][1] < totales[j + 1][1]:  
                 totales[j], totales[j + 1] = totales[j + 1], totales[j]
-
     print("\nBuses ordenados por recaudación (mayor a menor):")
     for bus, total in totales:
         print(f"  Bus {bus+1} con S/ {total}")
-
 
 # Realiza búsqueda lineal de la recaudación de un bus en una línea
 
@@ -124,21 +126,16 @@ def buscar_recaudacion_lineal(matriz):
         bus_buscado = int(input("Ingrese el número de bus: "))
         linea_buscada = int(input("Ingrese el número de línea: "))
 
-        encontrado = False
-        for i in range(len(matriz)):
-            for j in range(len(matriz[0])):
-                if (i + 1 == bus_buscado) and (j + 1 == linea_buscada):
-                    print(f"Recaudación del bus {bus_buscado} en línea {linea_buscada}: S/ {matriz[i][j]}")
-                    encontrado = True
-                    break
-            if encontrado:
-                break
-
-        if not encontrado:
-            print("Bus o línea fuera de rango.")
-    except:
-        print("Entrada inválida.")
-
+        if bus_buscado < 1 or bus_buscado > len(matriz):
+            print("Número de bus fuera de rango.")
+            return
+        if linea_buscada < 1 or linea_buscada > len(matriz[0]):
+            print("Número de línea fuera de rango.")
+            return
+        recaudacion = matriz[bus_buscado - 1][linea_buscada - 1]  
+        print(f"Recaudación del bus {bus_buscado} en línea {linea_buscada}: S/ {recaudacion}")
+    except ValueError:
+        print("Entrada inválida. Por favor ingrese un número entero.")
 
 # Intercambia las recaudaciones de dos buses en una línea
 
@@ -221,6 +218,6 @@ def main():
 
 
 # Punto de entrada del programa
-
-if __name__ == "__main__":
+def iniciar_programa():
     main()
+iniciar_programa()
