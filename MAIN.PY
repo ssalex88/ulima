@@ -1,47 +1,67 @@
 import random
 
+# -------------------------------
+# PARÁMETROS CONFIGURABLES
+# -------------------------------
+MAX_BUSES = 80        # Máxima cantidad de buses permitidos
+MAX_LINEAS = 40       # Máxima cantidad de líneas permitidas
+MONTO_MIN = 5000      # Monto mínimo de recaudación
+MONTO_MAX = 12000     # Monto máximo de recaudación
+
+# ---------------------------------------
+# Función que muestra el menú principal
+# ---------------------------------------
 def menu_principal():
     print("\n--- Hola, Ingrese los datos que desea saber ---")
     print("1. Indica la cantidad de buses y líneas que deseas acceder")
     print("2. Mostrar el bus con mayor recaudación")
     print("3. Mostrar el bus con mayor recaudación por línea")
     print("4. Mostrar la línea con menor recaudación de cada bus")
-    print("5. Ordenar y mostrar los buses de mayor a menor recaudación")
-    print("6. Encontrar la recaudación de un bus en una línea determinada")
+    print("5. Ordenar y mostrar los buses de mayor a menor recaudación (burbuja)")
+    print("6. Buscar la recaudación de un bus en una línea (búsqueda lineal)")
     print("7. Intercambiar las recaudaciones de dos buses en una línea")
     print("8. Determinar la suma total recursiva")
     print("9. Salir")
 
+# -----------------------------------------------------
+# Solicita cantidad de buses y líneas, validando límites
+# -----------------------------------------------------
 def capacidad_maxima():
     while True:
         try:
             buses = int(input("Ingrese cantidad de buses que desee que opere: "))
-            if 1 < buses <= 80:
+            if 1 < buses <= MAX_BUSES:
                 break
             else:
-                print("Cantidad no aceptada.")
+                print(f"Cantidad no aceptada. Debe estar entre 2 y {MAX_BUSES}.")
         except ValueError:
             print("Ingrese un número válido.")
 
     while True:
         try:
             lineas = int(input("Ingrese cantidad de líneas que desee que funcione con los buses: "))
-            if 1 < lineas <= 40:
+            if 1 < lineas <= MAX_LINEAS:
                 break
             else:
-                print("Cantidad no aceptada.")
+                print(f"Cantidad no aceptada. Debe estar entre 2 y {MAX_LINEAS}.")
         except ValueError:
             print("Ingrese un número válido.")
 
     return buses, lineas
 
+# ----------------------------------------------------------------
+# Genera matriz aleatoria de recaudaciones por bus y por línea
+# ----------------------------------------------------------------
 def generar_recaudaciones(buses, lineas):
     matriz = []
     for _ in range(buses):
-        fila = [random.randint(5000, 12000) for _ in range(lineas)]
+        fila = [random.randint(MONTO_MIN, MONTO_MAX) for _ in range(lineas)]
         matriz.append(fila)
     return matriz
 
+# ---------------------------------------------------------------
+# Muestra el bus o los buses con mayor recaudación total
+# ---------------------------------------------------------------
 def monto_recaudado(matriz):
     totales = [sum(bus) for bus in matriz]
     max_total = max(totales)
@@ -51,6 +71,9 @@ def monto_recaudado(matriz):
             print(f"  Bus {i+1} con S/ {total}")
     return max_total
 
+# -------------------------------------------------------------------
+# Muestra el bus con mayor recaudación en cada línea (por columna)
+# -------------------------------------------------------------------
 def max_recaudacion_por_linea(matriz):
     buses = len(matriz)
     lineas = len(matriz[0])
@@ -64,6 +87,9 @@ def max_recaudacion_por_linea(matriz):
                 bus_max = bus
         print(f"  Línea {linea+1}: Bus {bus_max+1} con S/ {maximo}")
 
+# ---------------------------------------------------------------------
+# Muestra la línea con menor recaudación de cada bus (por fila)
+# ---------------------------------------------------------------------
 def menor_recuadacion_por_linea(matriz):
     buses = len(matriz)
     lineas = len(matriz[0])
@@ -77,21 +103,49 @@ def menor_recuadacion_por_linea(matriz):
                 linea_menor = linea
         print(f"  Bus {bus+1}: Línea {linea_menor+1} con S/ {menor}")
 
+# ----------------------------------------------------------------
+# Ordena los buses por recaudación total usando burbuja descendente
+# ----------------------------------------------------------------
 def ordenar_buses(matriz):
-    totales = [(i, sum(matriz[i])) for i in range(len(matriz))]
-    totales.sort(key=lambda x: x[1], reverse=True)
+    n = len(matriz)
+    totales = [(i, sum(matriz[i])) for i in range(n)]
+
+    # Algoritmo de burbuja
+    for i in range(n - 1):
+        for j in range(n - i - 1):
+            if totales[j][1] < totales[j + 1][1]:
+                totales[j], totales[j + 1] = totales[j + 1], totales[j]
+
     print("\nBuses ordenados por recaudación (mayor a menor):")
     for bus, total in totales:
         print(f"  Bus {bus+1} con S/ {total}")
 
-def buscar_recaudacion(matriz):
+# -------------------------------------------------------------
+# Realiza búsqueda lineal de la recaudación de un bus en una línea
+# -------------------------------------------------------------
+def buscar_recaudacion_lineal(matriz):
     try:
-        bus = int(input("Ingrese el número de bus: ")) - 1
-        linea = int(input("Ingrese el número de línea: ")) - 1
-        print(f"Recaudación del bus {bus+1} en línea {linea+1}: S/ {matriz[bus][linea]}")
-    except:
-        print("Valores inválidos o fuera de rango.")
+        bus_buscado = int(input("Ingrese el número de bus: "))
+        linea_buscada = int(input("Ingrese el número de línea: "))
 
+        encontrado = False
+        for i in range(len(matriz)):
+            for j in range(len(matriz[0])):
+                if (i + 1 == bus_buscado) and (j + 1 == linea_buscada):
+                    print(f"Recaudación del bus {bus_buscado} en línea {linea_buscada}: S/ {matriz[i][j]}")
+                    encontrado = True
+                    break
+            if encontrado:
+                break
+
+        if not encontrado:
+            print("Bus o línea fuera de rango.")
+    except:
+        print("Entrada inválida.")
+
+# -------------------------------------------------------------
+# Intercambia las recaudaciones de dos buses en una línea
+# -------------------------------------------------------------
 def intercambiar_recaudaciones(matriz):
     try:
         bus1 = int(input("Ingrese el primer bus: ")) - 1
@@ -102,6 +156,9 @@ def intercambiar_recaudaciones(matriz):
     except:
         print("Error en los datos ingresados.")
 
+# ------------------------------------------------------------------
+# Calcula la suma total usando una función recursiva (por filas)
+# ------------------------------------------------------------------
 def suma_total_recursiva(matriz):
     def suma_lista(lista):
         if not lista:
@@ -110,6 +167,9 @@ def suma_total_recursiva(matriz):
     total = sum(suma_lista(fila) for fila in matriz)
     print(f"Suma total de todas las recaudaciones: S/ {total}")
 
+# -------------------------------------------------------
+# Función principal del programa (ciclo con menú)
+# -------------------------------------------------------
 def main():
     matriz = []
     buses = 0
@@ -145,7 +205,7 @@ def main():
                 print("Primero debe ingresar los datos (opción 1).")
         elif opcion == "6":
             if matriz:
-                buscar_recaudacion(matriz)
+                buscar_recaudacion_lineal(matriz)
             else:
                 print("Primero debe ingresar los datos (opción 1).")
         elif opcion == "7":
@@ -164,5 +224,8 @@ def main():
         else:
             print("Opción no válida.")
 
+# -----------------------------------
+# Punto de entrada del programa
+# -----------------------------------
 if __name__ == "__main__":
     main()
